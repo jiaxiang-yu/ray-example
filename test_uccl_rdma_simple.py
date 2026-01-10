@@ -9,6 +9,14 @@ Usage:
     # On sender node (after receiver is ready):
     python test_uccl_rdma_simple.py --role sender --receiver-ip <RECEIVER_IP>
 """
+import sys
+import os
+
+# Debug: print import info
+print(f"Python: {sys.executable}")
+print(f"CWD: {os.getcwd()}")
+print(f"sys.path: {sys.path[:3]}...")
+
 import argparse
 import torch
 from uccl.p2p import Endpoint
