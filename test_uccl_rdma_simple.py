@@ -26,7 +26,7 @@ def run_sender(receiver_ip: str):
     print(f"[Sender] Starting...")
 
     # Create endpoint
-    endpoint = Endpoint(local_gpu_idx=0, num_cpus=4)
+    endpoint = Endpoint(0, 4)
     local_meta = endpoint.get_metadata()
     local_ip, local_port, local_gpu = Endpoint.parse_metadata(local_meta)
     print(f"[Sender] Local endpoint: {local_ip}:{local_port}, GPU {local_gpu}")
@@ -78,7 +78,7 @@ def run_receiver():
     # Create endpoint with specific port
     import os
     os.environ["UCCL_PORT"] = "50000"  # Try to force port
-    endpoint = Endpoint(local_gpu_idx=0, num_cpus=4)
+    endpoint = Endpoint(0, 4)
     local_meta = endpoint.get_metadata()
     local_ip, local_port, local_gpu = Endpoint.parse_metadata(local_meta)
     print(f"[Receiver] Listening on {local_ip}:{local_port}, GPU {local_gpu}")
