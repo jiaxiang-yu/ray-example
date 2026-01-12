@@ -5,9 +5,10 @@ Tests basic RDMA connectivity between two nodes.
 Usage:
     # On receiver node:
     python test_uccl_rdma_simple.py --role receiver
+    # Note the port printed in output: "Listening on X.X.X.X:PORT"
 
     # On sender node (after receiver is ready):
-    python test_uccl_rdma_simple.py --role sender --receiver-ip <RECEIVER_IP>
+    python test_uccl_rdma_simple.py --role sender --receiver-ip <RECEIVER_IP> --receiver-port <PORT>
 """
 import sys
 import os
@@ -22,7 +23,7 @@ import torch
 from uccl.p2p import Endpoint
 
 
-def run_sender(receiver_ip: str):
+def run_sender(receiver_ip: str, receiver_port: int):
     print(f"[Sender] Starting...")
 
     # Create endpoint
@@ -43,8 +44,7 @@ def run_sender(receiver_ip: str):
         raise RuntimeError("Failed to register memory")
     print(f"[Sender] Registered memory: mr_id={mr_id}, size={size}")
 
-    # Connect to receiver (assumes receiver is listening on port 50000)
-    receiver_port = 50000
+    # Connect to receiver
     print(f"[Sender] Connecting to {receiver_ip}:{receiver_port}...")
     ok, conn_id = endpoint.connect(receiver_ip, remote_gpu_idx=0, remote_port=receiver_port)
     if not ok:
@@ -127,12 +127,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--role", choices=["sender", "receiver"], required=True)
     parser.add_argument("--receiver-ip", help="Receiver IP (for sender)")
+    parser.add_argument("--receiver-port", type=int, help="Receiver port (for sender)")
     args = parser.parse_args()
 
     if args.role == "sender":
-        if not args.receiver_ip:
-            parser.error("--receiver-ip required for sender")
-        run_sender(args.receiver_ip)
+        if not args.receiver_ip or not args.receiver_port:
+            parser.error("--receiver-ip and --receiver-port required for sender")
+        run_sender(args.receiver_ip, args.receiver_port)
     else:
         run_receiver()
 
